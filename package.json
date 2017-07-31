@@ -1,0 +1,34 @@
+{
+  "name": "auction-engine",
+  "version": "1.0.0",
+  "description": "Spike project for an auction engine",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/craigspaeth/auction-engine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/craigspaeth/auction-engine/issues"
+  },
+  "homepage": "https://github.com/craigspaeth/auction-engine#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.15.3",
+    "http-proxy": "^1.16.2",
+    "jsonwebtoken": "^7.4.1",
+    "lodash": "^4.17.4",
+    "promised-mongo": "^1.2.0",
+    "superagent": "^3.5.2",
+    "uid": "0.0.2",
+    "ws": "^3.1.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.5.3",
+    "standard": "^10.0.2"
+  }
+}
