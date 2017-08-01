@@ -20,8 +20,9 @@ module.exports = async event => {
   const eventId = uid()
 
   // Validate the event can be appended and saved to database
-  // TODO: Validation code
   const lot = (await db.lots.findOne({ _id: lotId })) || { events: [] }
+  // TODO: Validation code
+  // if (!valid(lot.events, event)) throw new Error("Can't add this")
   const le = [...lot.events, _.assign(event, { eventId })]
   await db.lots.update(
     { _id: lotId },
