@@ -31,6 +31,7 @@ CAUSALITY_OBSERVERS_WEBSOCKET_URL=ws://localhost:3000
 Start Prediction
 
 ```
+$ cd ~/prediction
 $ yarn start
 ```
 

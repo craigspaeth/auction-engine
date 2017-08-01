@@ -9,7 +9,8 @@ const db = pmongo(DB_URL, ['lots'])
 
 /**
  * Main calculator function that takes in a new lot event, pulls the lot event
- * list from the database, and reduces the event list into derived state.
+ * list from the database, reduces the event list into derived state, and
+ * finally aggregates that into the full LotUpdateBroadcast websocket message.
  *
  * @param  {[Object]} event The `event` data from the PostEvent over websockets
  * @return {[Object]} LotUpdateBroadcast JSON sent over websockets
@@ -31,24 +32,15 @@ module.exports = async event => {
   // Reduce lot event list into the Causality LotUpdateBroadcast data model.
   // In the future one could imagine going further and reducing this list
   // of events into an even more useful derived state such as `youreWinning`
-  // using the `user` state above to compare with the winning bid.
+  // using the `user` state from index.js:32 to compare with the `winningBid`.
   const derivedLotState = {
-    askingPriceCents: winningBid(le)
-      ? winningBid(le).amountCents + currentIncrement(le).amount
-      : currentIncrement(le).amount,
-    sellingPriceCents: winningBid(le)
-      ? winningBid(le).amountCents
-      : currentIncrement(le).amount,
-    bidCount: bids(le).length ? bids(le).reduce(count => count + 1, 0) : 0,
-    floorAskingPriceCents: winningFloorBid(le) || winningBid(le)
-      ? (winningFloorBid(le) || winningBid(le)).amountCents +
-          currentIncrement(le).amount
-      : currentIncrement(le).amount,
-    floorSellingPriceCents: winningFloorBid(le)
-      ? winningFloorBid(le).amountCents
-      : null,
-    floorWinningBidder: winningFloorBid(le) ? winningFloorBid(le).bidder : null,
-    winningBidEventId: winningBid(le).eventId,
+    askingPriceCents: askingPriceCents(le),
+    sellingPriceCents: sellingPriceCents(le),
+    bidCount: bidCount(le),
+    floorAskingPriceCents: floorAskingPriceCents(le),
+    floorSellingPriceCents: floorSellingPriceCents(le),
+    floorWinningBidder: floorWinningBidder(le),
+    winningBidEventId: winningBidEventId(le),
     // TODO: Stubbed data below—should also reduce state like above
     biddingStatus: 'OnBlock',
     floorIsOpen: true,
@@ -66,6 +58,31 @@ module.exports = async event => {
   }
   return lotUpdateBroadcast
 }
+
+const winningBidEventId = le => winningBid(le).eventId
+
+const floorWinningBidder = le =>
+  (winningFloorBid(le) ? winningFloorBid(le).bidder : null)
+
+const floorSellingPriceCents = le =>
+  (winningFloorBid(le) ? winningFloorBid(le).amountCents : null)
+
+const bidCount = le =>
+  (bids(le).length ? bids(le).reduce(count => count + 1, 0) : 0)
+
+const sellingPriceCents = le =>
+  (winningBid(le) ? winningBid(le).amountCents : currentIncrement(le).amount)
+
+const askingPriceCents = le =>
+  (winningBid(le)
+    ? winningBid(le).amountCents + currentIncrement(le).amount
+    : currentIncrement(le).amount)
+
+const floorAskingPriceCents = le =>
+  (winningFloorBid(le) || winningBid(le)
+    ? (winningFloorBid(le) || winningBid(le)).amountCents +
+        currentIncrement(le).amount
+    : currentIncrement(le).amount)
 
 const bids = le => le.filter(event => event.type === 'FirstPriceBidPlaced')
 
